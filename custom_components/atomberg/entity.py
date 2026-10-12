@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from logging import Logger
+from collections.abc import Callable
 from typing import TypeVar
 
 from homeassistant.config_entries import ConfigEntry
@@ -43,14 +44,19 @@ async def platform_async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
     entity_type: _EntityT,
+    device_filter: Callable[[AtombergDevice], bool] | None = None,
 ) -> None:
     """Set up an Atomberg platform."""
     coordinator: AtombergDataUpdateCoordinator = hass.data[DOMAIN][ENTRIES][
         entry.entry_id
     ]
+    devices = coordinator.devices
+    if device_filter is not None:
+        devices = [device for device in devices if device_filter(device)]
+
     async_add_entities(
         entity_type(coordinator=coordinator, device=device)
-        for device in coordinator.devices
+        for device in devices
     )
 
 
@@ -101,12 +107,13 @@ class AtombergEntity(CoordinatorEntity, Entity):
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        if self.coordinator.data["device_id"] != self._device.id:
+        coordinator_data = self.coordinator.data or {}
+        if coordinator_data.get("device_id") not in (None, self._device.id):
             return
 
         state = {}
         # Decode the state data
-        if state_string := self.coordinator.data.get("state_string"):
+        if state_string := coordinator_data.get("state_string"):
             value = state_string.split(",")[0].strip()
             if not value.isnumeric():
                 return
@@ -141,9 +148,11 @@ class AtombergEntity(CoordinatorEntity, Entity):
 
                 state[ATTR_LIGHT_MODE] = light_mode
 
-        self._device.update_state({**state, ATTR_IS_ONLINE: True})
-        self._device.update_ip_address(self.coordinator.data.get("ip_address"))
-        self._device.update_last_seen(utcnow().timestamp())
+        if coordinator_data.get("device_id") == self._device.id:
+            self._device.update_state({**state, ATTR_IS_ONLINE: True})
+            self._device.update_ip_address(coordinator_data.get("ip_address"))
+            self._device.update_last_seen(utcnow().timestamp())
+
         self.update_ha_state_if_required()
 
     def update_ha_state_if_required(self):

@@ -18,8 +18,10 @@ from homeassistant.util.color import scale_to_ranged_value, value_to_brightness
 
 from .coordinator import AtombergDataUpdateCoordinator
 from .device import (
+    ATTR_BRIGHTNESS,
     ATTR_LED,
     ATTR_LIGHT_MODE,
+    DEVICE_TYPE_FAN,
     LED_BRIGHTNESS_SCALE,
     LIGHT_MODE_COOL,
     LIGHT_MODE_DAYLIGHT,
@@ -42,7 +44,12 @@ async def async_setup_entry(
 ) -> None:
     """Automatically setup the light entities from the devices list."""
     await platform_async_setup_entry(
-        hass, entry, async_add_entities, AtombergFanLightEntity
+        hass,
+        entry,
+        async_add_entities,
+        AtombergFanLightEntity,
+        device_filter=lambda device: device.device_type == DEVICE_TYPE_FAN
+        and device.supports_command(ATTR_LED),
     )
 
 

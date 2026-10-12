@@ -15,7 +15,7 @@ from homeassistant.util.percentage import (
 
 from .const import CONF_CONTROL_METHOD, ControlMethod
 from .coordinator import AtombergDataUpdateCoordinator
-from .device import ATTR_POWER, ATTR_SPEED, AtombergDevice
+from .device import ATTR_POWER, ATTR_SPEED, DEVICE_TYPE_FAN, AtombergDevice
 from .entity import AtombergEntity, platform_async_setup_entry
 from .ir_fan import async_setup_entry as ir_fan_async_setup_entry
 
@@ -34,7 +34,15 @@ async def async_setup_entry(
         await ir_fan_async_setup_entry(hass, entry, async_add_entities)
         return
 
-    await platform_async_setup_entry(hass, entry, async_add_entities, AtombergFanEntity)
+    await platform_async_setup_entry(
+        hass,
+        entry,
+        async_add_entities,
+        AtombergFanEntity,
+        device_filter=lambda device: device.device_type == DEVICE_TYPE_FAN
+        and device.supports_command(ATTR_POWER)
+        and device.supports_command(ATTR_SPEED),
+    )
 
 
 class AtombergFanEntity(AtombergEntity, FanEntity):

@@ -9,12 +9,14 @@
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-*Integration for **[Atomberg smart fans](https://atomberg.com/atomberg-ceiling-fans/smart-fans)***
+*Integration for **Atomberg smart fans, water purifiers, and smart locks***
 
 ## Tested on
 - **[Atomberg Renesa+ Ceiling Fan](https://atomberg.com/atomberg-renesa-smart-iot-enabled-ceiling-fans-with-bldc-motor-and-remote)**
 - **[Atomberg Aris Ceiling Fan](https://atomberg.com/aris-ceiling-fan)**
 - **[Atomberg Erica Ceiling Fan](https://atomberg.com/erica-ceiling-fan)**
+- **Atomberg Intellon Water Purifier API model W2**
+- **Atomberg Cypheo Elite / G1 Smart Lock API**
 
 ## Installation
 
@@ -53,9 +55,9 @@
 
 ## Compatibility and Requirements
 
-- Please note that this integration is designed for the latest series of Atomberg fans and may not work with older models.
+- Please note that this integration is designed for Atomberg devices supported by the public developer API, including supported smart fans, the Intellon water purifier, and supported smart locks.
 - The integration relies on cloud APIs for initialization (cloud control mode).
-- This integration uses UDP port `5625` for updating the fan state locally, make sure that port is not in use by any other application and that it is not blocked by any firewall.
+- This integration uses UDP port `5625` for updating fan state locally. Water purifier and smart lock state are refreshed through the cloud API, so no local UDP updates are required for those device types.
 
 ## Control Methods
 
@@ -63,7 +65,75 @@ This integration supports two control methods. You choose which one to use durin
 
 ### Cloud API Control
 
-Uses the Atomberg cloud APIs for fan control. Requires an `api_key` and `refresh_token` from the [Atomberg Developer Portal](https://developer.atomberg-iot.com/#overview). Provides full two-way state feedback (speed, power, light, etc.).
+Uses the Atomberg cloud APIs for supported fan, water purifier, and smart lock integration. Requires an `api_key` and `refresh_token` from the [Atomberg Developer Portal](https://developer.atomberg-iot.com/#overview). Provides fan controls, water purifier mode and telemetry entities, lock state and diagnostic entities, and guest PIN generation for supported locks.
+
+The cloud setup creates entities based on each device's `device_type`, reported state, analytics data, and `supported_commands`. This means the integration only exposes features that the Atomberg API says a given device actually supports.
+
+#### Fan entity coverage
+
+Fan features are enabled from each device's `supported_commands` list returned by the Atomberg API. The integration does not assume every fan model supports every advanced feature.
+
+Cloud fan entities currently map as follows:
+
+| API capability | Home Assistant entity | Availability |
+| --- | --- | --- |
+| `power`, `speed` | `fan` | Supported fan models |
+| `sleep` | `switch` | Only when `sleep` is listed in `supported_commands` |
+| `timer` | `select` and elapsed-time `sensor` | Only when `timer` is listed in `supported_commands` |
+| `led` | `light` | Only when `led` is listed in `supported_commands` |
+| `brightness` | `light` brightness | Only when `brightness` is listed in `supported_commands` |
+| `light_mode` | `light` effect | Only when `light_mode` is listed in `supported_commands` |
+| `rev_mode` | `switch` | Only when `rev_mode` is listed in `supported_commands` |
+| `buzzer_status` | `switch` | Only when `buzzer_status` is listed in `supported_commands` |
+| analytics | diagnostic `sensor`s | Available for fan models that return analytics |
+
+This was validated against the integration's bundled [openapi.yaml](c:/Users/z004u01a/Documents/esp-home/atomberg/atomberg-integration/openapi.yaml), which documents `supported_commands` as the source of truth for per-model fan feature support.
+
+#### Water purifier entity coverage
+
+Cloud water purifier entities currently map as follows:
+
+| API capability | Home Assistant entity | Availability |
+| --- | --- | --- |
+| `mode` | `select` | Only when `mode` is listed in `supported_commands` |
+| `fallback_mode` | `select` | Only when `fallback_mode` is listed in `supported_commands` |
+| `idle_sleep` | `switch` | Only when `idle_sleep` is listed in `supported_commands` |
+| `tds_threshold` | `number` | Only when `tds_threshold` is listed in `supported_commands` |
+| `input_tds` | diagnostic `sensor` | When reported by the device state API |
+| `tank_tds` | diagnostic `sensor` | When reported by the device state API |
+| `choking_faults` | diagnostic `sensor` | When reported by the device state API |
+| `system_faults` | diagnostic `sensor` | When reported by the device state API |
+| `water_saved_liters` | diagnostic `sensor` | When returned by the analytics API |
+| `uv_runtime_hours` | diagnostic `sensor` | When returned by the analytics API |
+
+Current purifier limitation:
+
+- The public API supports `sleep_mode`, `start_utc`, and `stop_utc`, but the integration does not yet expose purifier sleep-window entities.
+
+#### Smart lock entity coverage
+
+Cloud smart lock entities currently map as follows:
+
+| API capability | Home Assistant entity | Availability |
+| --- | --- | --- |
+| `battery` | diagnostic `sensor` | When reported by the device state API |
+| `n_unlocks` | diagnostic `sensor` | When reported by the device state API |
+| `esp_fw_version` | diagnostic `sensor` | When reported by the device state API |
+| `settings` | diagnostic `sensor` with extra attributes | When reported by the device state API |
+| guest PIN generation | `button` | For supported lock models via `get_lock_dynamic_pin` |
+| generated guest PIN window | diagnostic `sensor`s | Stored after generating a PIN from the button |
+
+Current lock notes:
+
+- Locks do not support `send_command` through the public API, so the integration does not create control switches or selects for lock actuation.
+- Pressing the guest PIN button creates a Home Assistant persistent notification with the PIN and validity window.
+- For `smart_lock_black`, the integration currently requests a 4-hour PIN window, matching the API's required `start_time` and `end_time` flow.
+
+#### Cloud behavior notes
+
+- Fan availability is refreshed locally from UDP broadcasts when available.
+- Water purifier and smart lock state are refreshed through the cloud API on the coordinator polling interval.
+- Fan and purifier analytics come from the `get_device_analytics` endpoint. Locks do not expose analytics through the API.
 
 ### Infrared (IR) Control
 

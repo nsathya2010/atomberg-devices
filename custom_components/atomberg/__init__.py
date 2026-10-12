@@ -25,6 +25,8 @@ CLOUD_PLATFORMS: list[Platform] = [
     Platform.LIGHT,
     Platform.SENSOR,
     Platform.SELECT,
+    Platform.NUMBER,
+    Platform.BUTTON,
 ]
 
 IR_PLATFORMS: list[Platform] = [

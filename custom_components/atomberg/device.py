@@ -2,9 +2,12 @@
 
 import json
 import socket
+from datetime import timedelta
 from copy import deepcopy
 from logging import getLogger
 from typing import Any
+
+from homeassistant.util.dt import utcnow
 
 from homeassistant.components.light import ATTR_BRIGHTNESS
 from homeassistant.config_entries import ConfigEntry
@@ -15,9 +18,9 @@ from .api import AtombergCloudAPI
 from .const import CONF_USE_CLOUD_CONTROL
 
 _LOGGER = getLogger(__name__)
-
-SUPPORTED_BRIGHTNESS_CONTROL_SERIES = ["I1", "I5", "M1", "S1", "S2"]
-SUPPORTED_COLOR_EFFECT_SERIES = ["I1", "I5"]
+DEVICE_TYPE_FAN = "fan"
+DEVICE_TYPE_WATER_PURIFIER = "water_purifier"
+DEVICE_TYPE_LOCK = "lock"
 
 ATTR_IS_ONLINE = "is_online"
 ATTR_POWER = "power"
@@ -25,6 +28,8 @@ ATTR_SPEED = "speed"
 ATTR_SLEEP = "sleep"
 ATTR_LIGHT_MODE = "light_mode"
 ATTR_LED = "led"
+ATTR_REV_MODE = "rev_mode"
+ATTR_BUZZER_STATUS = "buzzer_status"
 ATTR_TIMER_HOURS = "timer_hours"
 ATTR_TIMER_TIME_ELAPSED_MINS = "timer_time_elapsed_mins"
 LIGHT_MODE_DAYLIGHT = "daylight"
@@ -55,6 +60,10 @@ class AtombergDevice:
         self._series = data["series"]
         self._model = data["model"]
         self._name = data["name"]
+        self._device_type = data["device_type"]
+        self._supported_commands = {
+            command["command"]: command for command in data.get("supported_commands", [])
+        }
         self._api = api
         self._state: dict = data["state"]
         self._last_seen: int = None
@@ -70,12 +79,12 @@ class AtombergDevice:
     @property
     def supports_brightness_control(self):
         """Check whether device supports brightness control."""
-        return self.series in SUPPORTED_BRIGHTNESS_CONTROL_SERIES
+        return self.supports_command(ATTR_BRIGHTNESS)
 
     @property
     def supports_color_effect(self):
         """Check whether device supports color modes."""
-        return self.series in SUPPORTED_COLOR_EFFECT_SERIES
+        return self.supports_command(ATTR_LIGHT_MODE)
 
     @property
     def state(self) -> dict[str, Any]:
@@ -108,6 +117,11 @@ class AtombergDevice:
         return self._model
 
     @property
+    def device_type(self) -> str:
+        """Get device type."""
+        return self._device_type
+
+    @property
     def last_seen(self) -> float:
         """Get last seen UTC timestamp."""
         return self._last_seen
@@ -121,6 +135,35 @@ class AtombergDevice:
     def mac(self) -> str:
         """Get MAC address."""
         return format_mac(self.id)
+
+    def supports_command(self, command: str) -> bool:
+        """Check whether the device exposes a command."""
+        return command in self._supported_commands
+
+    async def async_get_lock_dynamic_pin(self) -> dict | None:
+        """Generate a lock guest PIN and store it in the local state."""
+        start_time = None
+        end_time = None
+        if self.device_type == DEVICE_TYPE_LOCK and self.series == "smart_lock_black":
+            start = utcnow()
+            start_time = int(start.timestamp())
+            end_time = int((start + timedelta(hours=4)).timestamp())
+
+        pin_data = await self._api.async_get_lock_dynamic_pin(
+            self.id,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        if pin_data:
+            self.update_state(
+                {
+                    "last_guest_pin": pin_data.get("otp"),
+                    "last_guest_pin_valid_start": pin_data.get("validStartTime"),
+                    "last_guest_pin_valid_end": pin_data.get("validEndTime"),
+                }
+            )
+
+        return pin_data
 
     def update_last_seen(self, value: float):
         """Update last seen timestamp."""
@@ -219,6 +262,14 @@ class AtombergDevice:
         if await self._api.async_send_command(self.id, {"timer": value}):
             _LOGGER.debug("%s: set sleep mode: %d", self.name, value)
             self.update_state({ATTR_TIMER_HOURS: TIMER_MAPPING[value][0]})
+
+    async def async_send_command(self, command: dict) -> bool:
+        """Send a generic command and update local state optimistically."""
+        if await self._async_send_command(command):
+            self.update_state(command)
+            return True
+
+        return False
 
     def update_state(self, new_state: dict):
         """Update states."""
