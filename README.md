@@ -1,4 +1,4 @@
-# Atomberg
+# Atomberg Smart Devices
 
 [![GitHub Release][releases-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
@@ -9,7 +9,9 @@
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-*Integration for **Atomberg smart fans, water purifiers, and smart locks***
+*Standalone Home Assistant integration for **Atomberg smart fans, water purifiers, and smart locks***
+
+This project is based on the original [dasshubham762/atomberg-integration](https://github.com/dasshubham762/atomberg-integration) repository and extends it with broader public API device coverage.
 
 ## Tested on
 - **[Atomberg Renesa+ Ceiling Fan](https://atomberg.com/atomberg-renesa-smart-iot-enabled-ceiling-fans-with-bldc-motor-and-remote)**
@@ -188,13 +190,13 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 
 
 [integration_blueprint]: https://github.com/ludeeus/integration_blueprint
-[commits-shield]: https://img.shields.io/github/commit-activity/y/dasshubham762/atomberg-integration.svg?style=for-the-badge
-[commits]: https://github.com/dasshubham762/atomberg-integration/commits/main
+[commits-shield]: https://img.shields.io/github/commit-activity/y/nsathya2010/atomberg-devices.svg?style=for-the-badge
+[commits]: https://github.com/nsathya2010/atomberg-devices/commits/main
 [discord]: https://discord.gg/Qa5fW2R
 [discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
-[license-shield]: https://img.shields.io/github/license/dasshubham762/atomberg-integration.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/badge/maintainer-%40dasshubham762-blue.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/dasshubham762/atomberg-integration.svg?style=for-the-badge
-[releases]: https://github.com/dasshubham762/atomberg-integration/releases
+[license-shield]: https://img.shields.io/github/license/nsathya2010/atomberg-devices.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-%40nsathya2010-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/nsathya2010/atomberg-devices.svg?style=for-the-badge
+[releases]: https://github.com/nsathya2010/atomberg-devices/releases
