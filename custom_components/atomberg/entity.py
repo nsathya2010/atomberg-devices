@@ -28,6 +28,7 @@ from .device import (
     ATTR_SPEED,
     ATTR_TIMER_HOURS,
     ATTR_TIMER_TIME_ELAPSED_MINS,
+    DEVICE_TYPE_FAN,
     LIGHT_MODE_COOL,
     LIGHT_MODE_DAYLIGHT,
     LIGHT_MODE_WARM,
@@ -97,8 +98,15 @@ class AtombergEntity(CoordinatorEntity, Entity):
 
     @property
     def available(self) -> bool:
-        """Whether the entity is online."""
-        return self.device_state[ATTR_IS_ONLINE]
+        """Whether the entity should be available in Home Assistant."""
+        if self._device.device_type == DEVICE_TYPE_FAN:
+            return self.device_state[ATTR_IS_ONLINE]
+
+        # Water purifiers and locks are cloud-polled devices. The Atomberg API
+        # still returns meaningful last-known state and analytics while their
+        # live `is_online` flag is false, so keep those entities available as
+        # long as coordinator refreshes are succeeding.
+        return self.coordinator.last_update_success
 
     @property
     def device_state(self) -> dict:

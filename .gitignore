@@ -15,3 +15,6 @@ coverage.xml
 
 # Home Assistant configuration
 config/
+
+# Local API test secrets
+scripts/atomberg.env

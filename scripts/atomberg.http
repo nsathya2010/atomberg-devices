@@ -1,0 +1,29 @@
+@base = {{$dotenv ATOMBERG_BASE}}
+@apiKey = {{$dotenv ATOMBERG_API_KEY}}
+@refreshToken = {{$dotenv ATOMBERG_REFRESH_TOKEN}}
+@deviceId = {{$dotenv ATOMBERG_DEVICE_ID}}
+
+### 1. Exchange refresh token for a 24-hour access token
+# @name getAccessToken
+GET {{base}}/get_access_token
+x-api-key: {{apiKey}}
+Authorization: Bearer {{refreshToken}}
+
+> {%
+client.global.set("accessToken", response.body.message.access_token);
+%}
+
+### 2. List supported devices
+GET {{base}}/get_list_of_devices
+x-api-key: {{apiKey}}
+Authorization: Bearer {{accessToken}}
+
+### 3. Get current device state
+GET {{base}}/get_device_state?device_id={{deviceId}}
+x-api-key: {{apiKey}}
+Authorization: Bearer {{accessToken}}
+
+### 4. Get device analytics
+GET {{base}}/get_device_analytics?device_id={{deviceId}}
+x-api-key: {{apiKey}}
+Authorization: Bearer {{accessToken}}
