@@ -20,6 +20,9 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
     EntitySelector,
     EntitySelectorConfig,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -30,11 +33,15 @@ from .const import (
     CONF_CONTROL_METHOD,
     CONF_FAN_MODEL,
     CONF_IR_EMITTER_ENTITY,
+    CONF_POLL_INTERVAL,
     CONF_REFRESH_TOKEN,
     CONF_USE_CLOUD_CONTROL,
+    DEFAULT_POLL_INTERVAL_MINUTES,
     DOMAIN,
     ENTRIES,
     FAN_MODEL_NAMES,
+    MAX_POLL_INTERVAL_MINUTES,
+    MIN_POLL_INTERVAL_MINUTES,
     ControlMethod,
     FanModel,
 )
@@ -51,6 +58,17 @@ CLOUD_DATA_SCHEMA = vol.Schema(
 OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_USE_CLOUD_CONTROL, default=False): cv.boolean,
+        vol.Optional(
+            CONF_POLL_INTERVAL, default=DEFAULT_POLL_INTERVAL_MINUTES
+        ): NumberSelector(
+            NumberSelectorConfig(
+                min=MIN_POLL_INTERVAL_MINUTES,
+                max=MAX_POLL_INTERVAL_MINUTES,
+                step=5,
+                unit_of_measurement="min",
+                mode=NumberSelectorMode.BOX,
+            )
+        ),
     }
 )
 

@@ -6,11 +6,14 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-# Setup venv if not devcontainer of venv is not activated
-if [ ! -n "$DEVCONTAINER" ] && [ ! -n "$VIRTUAL_ENV" ];then
+# Setup venv if it does not exist yet
+if [ ! -d ".venv" ]; then
   virtualenv .venv
-  source .venv/bin/activate
 fi
+
+VENV_BIN="${PWD}/.venv/bin"
+PYTHON_BIN="${VENV_BIN}/python"
+HASS_BIN="${VENV_BIN}/hass"
 
 # Install packages
 sudo apt-get update
@@ -18,12 +21,12 @@ sudo apt-get install -y libpcap-dev ffmpeg
 
 # Install python dependencies
 echo "Installing development dependencies..."
-python3 -m pip install -r requirements.txt
+"${PYTHON_BIN}" -m pip install -r requirements.txt
 
 # Create config folder if does not exist
 mkdir -p config
 
-hass --script ensure_config -c config
+"${HASS_BIN}" --script ensure_config -c config
 
 if ! grep -R "logger" config/configuration.yaml >> /dev/null;then
 echo "

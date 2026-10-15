@@ -5,4 +5,9 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-ruff check . --fix
+RUFF_BIN="ruff"
+if [ -x "${PWD}/.venv/bin/ruff" ]; then
+	RUFF_BIN="${PWD}/.venv/bin/ruff"
+fi
+
+"${RUFF_BIN}" check . --fix

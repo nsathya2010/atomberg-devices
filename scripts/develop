@@ -5,6 +5,11 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+HASS_BIN="hass"
+if [ -x "${PWD}/.venv/bin/hass" ]; then
+	HASS_BIN="${PWD}/.venv/bin/hass"
+fi
+
 # Set the path to custom_components
 ## This let's us have the structure we want <root>/custom_components/siku
 ## while at the same time have Home Assistant configuration inside <root>/config
@@ -12,4 +17,4 @@ cd "$(dirname "$0")/.."
 export PYTHONPATH="${PYTHONPATH}:${PWD}/custom_components"
 
 # Start Home Assistant
-hass -c config
+"${HASS_BIN}" -c config

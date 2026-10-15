@@ -7,9 +7,11 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_CONTROL_METHOD, ControlMethod
+from .const import CONF_CONTROL_METHOD, DOMAIN, ENTRIES, MANUFACTURER, ControlMethod
 from .coordinator import AtombergDataUpdateCoordinator
 from .device import DEVICE_TYPE_LOCK, AtombergDevice
 from .entity import AtombergEntity, platform_async_setup_entry
@@ -28,6 +30,11 @@ async def async_setup_entry(
         await ir_async_setup_entry(hass, entry, async_add_entities)
         return
 
+    coordinator: AtombergDataUpdateCoordinator = hass.data[DOMAIN][ENTRIES][
+        entry.entry_id
+    ]
+    async_add_entities([AtombergRefreshButton(coordinator, entry)])
+
     await platform_async_setup_entry(
         hass,
         entry,
@@ -35,6 +42,34 @@ async def async_setup_entry(
         LockDynamicPinButton,
         device_filter=lambda device: device.device_type == DEVICE_TYPE_LOCK,
     )
+
+
+class AtombergRefreshButton(CoordinatorEntity, ButtonEntity):
+    """Button to force an immediate cloud state refresh for all devices."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self, coordinator: AtombergDataUpdateCoordinator, entry: ConfigEntry
+    ) -> None:
+        """Initialize the refresh button entity."""
+        super().__init__(coordinator)
+
+        self._attr_unique_id = f"{MANUFACTURER}.{entry.entry_id}_refresh_now"
+        self._attr_name = "Refresh now"
+        self._attr_icon = "mdi:cloud-refresh"
+        self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Atomberg Account",
+            manufacturer=MANUFACTURER,
+            model="Cloud API",
+            entry_type=DeviceEntryType.SERVICE,
+        )
+
+    async def async_press(self) -> None:
+        """Request an immediate cloud refresh for all devices."""
+        await self.coordinator.async_request_refresh()
 
 
 class LockDynamicPinButton(AtombergEntity, ButtonEntity):

@@ -13,13 +13,6 @@
 
 This project is based on the original [dasshubham762/atomberg-integration](https://github.com/dasshubham762/atomberg-integration) repository and extends it with broader public API device coverage.
 
-## Tested on
-- **[Atomberg Renesa+ Ceiling Fan](https://atomberg.com/atomberg-renesa-smart-iot-enabled-ceiling-fans-with-bldc-motor-and-remote)**
-- **[Atomberg Aris Ceiling Fan](https://atomberg.com/aris-ceiling-fan)**
-- **[Atomberg Erica Ceiling Fan](https://atomberg.com/erica-ceiling-fan)**
-- **Atomberg Intellon Water Purifier API model W2**
-- **Atomberg Cypheo Elite / G1 Smart Lock API**
-
 ## Installation
 
 ### Method 1: Using HACS
@@ -133,8 +126,10 @@ Current lock notes:
 
 #### Cloud behavior notes
 
-- Fan availability is refreshed locally from UDP broadcasts when available.
-- Water purifier and smart lock state are refreshed through the cloud API on the coordinator polling interval.
+- Fan availability and live control state (power, speed, sleep, LED, light mode, timer) are refreshed locally from UDP broadcasts when available and are not overwritten by the cloud poll.
+- Water purifier and smart lock state, plus fan analytics (`power_consumption`, `runtime`), are refreshed through the cloud API on the coordinator's polling interval.
+- The polling interval is configurable from the integration's options (`Cloud poll interval`), from 15 to 240 minutes, defaulting to 30 minutes. At 2 API calls per poll (device state + analytics), the default uses 48 of the API's 100 calls/day quota.
+- A "Refresh now" button is available under the "Atomberg Account" device to force an immediate cloud refresh on demand, without waiting for the next scheduled poll.
 - Fan and purifier analytics come from the `get_device_analytics` endpoint. Locks do not expose analytics through the API.
 
 ### Infrared (IR) Control

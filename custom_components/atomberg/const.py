@@ -12,7 +12,16 @@ CONF_USE_CLOUD_CONTROL = "use_cloud_control"
 CONF_CONTROL_METHOD = "control_method"
 CONF_IR_EMITTER_ENTITY = "ir_emitter_entity"
 CONF_FAN_MODEL = "fan_model"
+CONF_POLL_INTERVAL = "purifier_poll_interval"
 MANUFACTURER = "Atomberg"
+
+# How often (in minutes) the cloud is polled for state that has no local
+# push update (water purifiers, locks, and fan analytics). The Atomberg
+# cloud API allows 100 calls/day; the default of 30 minutes uses 48 of them
+# (2 endpoint calls per poll).
+DEFAULT_POLL_INTERVAL_MINUTES = 30
+MIN_POLL_INTERVAL_MINUTES = 15
+MAX_POLL_INTERVAL_MINUTES = 240
 
 
 class ControlMethod(StrEnum):
