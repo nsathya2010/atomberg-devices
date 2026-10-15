@@ -20,8 +20,8 @@ MANUFACTURER = "Atomberg"
 # cloud API allows 100 calls/day; the default of 30 minutes uses 48 of them
 # (2 endpoint calls per poll).
 DEFAULT_POLL_INTERVAL_MINUTES = 30
-MIN_POLL_INTERVAL_MINUTES = 15
-MAX_POLL_INTERVAL_MINUTES = 240
+MIN_POLL_INTERVAL_MINUTES = 20
+MAX_POLL_INTERVAL_MINUTES = 60
 
 
 class ControlMethod(StrEnum):

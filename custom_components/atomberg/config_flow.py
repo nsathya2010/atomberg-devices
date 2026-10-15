@@ -66,7 +66,7 @@ OPTIONS_SCHEMA = vol.Schema(
                 max=MAX_POLL_INTERVAL_MINUTES,
                 step=5,
                 unit_of_measurement="min",
-                mode=NumberSelectorMode.BOX,
+                mode=NumberSelectorMode.SLIDER,
             )
         ),
     }

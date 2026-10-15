@@ -2,14 +2,14 @@
   "domain": "atomberg",
   "name": "Atomberg",
   "codeowners": [
-    "@dasshubham762"
+    "@nsathya2010"
   ],
   "config_flow": true,
   "dependencies": [
     "infrared"
   ],
-  "documentation": "https://github.com/dasshubham762/atomberg-integration",
+  "documentation": "https://github.com/nsathya2010/atomberg-devices",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/dasshubham762/atomberg-integration/issues",
+  "issue_tracker": "https://github.com/nsathya2010/atomberg-devices/issues",
   "version": "2.4.0"
 }

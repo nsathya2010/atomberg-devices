@@ -128,7 +128,7 @@ Current lock notes:
 
 - Fan availability and live control state (power, speed, sleep, LED, light mode, timer) are refreshed locally from UDP broadcasts when available and are not overwritten by the cloud poll.
 - Water purifier and smart lock state, plus fan analytics (`power_consumption`, `runtime`), are refreshed through the cloud API on the coordinator's polling interval.
-- The polling interval is configurable from the integration's options (`Cloud poll interval`), from 15 to 240 minutes, defaulting to 30 minutes. At 2 API calls per poll (device state + analytics), the default uses 48 of the API's 100 calls/day quota.
+- The polling interval is configurable from the integration's options (`Cloud poll interval`) as a 20 to 60 minute slider, defaulting to 30 minutes. At 2 API calls per poll (device state + analytics), the default uses 48 of the API's 100 calls/day quota.
 - A "Refresh now" button is available under the "Atomberg Account" device to force an immediate cloud refresh on demand, without waiting for the next scheduled poll.
 - Fan and purifier analytics come from the `get_device_analytics` endpoint. Locks do not expose analytics through the API.
 
