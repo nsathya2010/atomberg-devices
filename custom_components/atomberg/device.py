@@ -2,17 +2,16 @@
 
 import json
 import socket
-from datetime import timedelta
 from copy import deepcopy
+from datetime import timedelta
 from logging import getLogger
 from typing import Any
-
-from homeassistant.util.dt import utcnow
 
 from homeassistant.components.light import ATTR_BRIGHTNESS
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import format_mac
+from homeassistant.util.dt import utcnow
 
 from .api import AtombergCloudAPI
 from .const import CONF_USE_CLOUD_CONTROL

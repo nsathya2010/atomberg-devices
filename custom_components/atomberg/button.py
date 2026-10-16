@@ -39,6 +39,13 @@ async def async_setup_entry(
         hass,
         entry,
         async_add_entities,
+        AtombergDeviceRefreshButton,
+    )
+
+    await platform_async_setup_entry(
+        hass,
+        entry,
+        async_add_entities,
         LockDynamicPinButton,
         device_filter=lambda device: device.device_type == DEVICE_TYPE_LOCK,
     )
@@ -69,6 +76,25 @@ class AtombergRefreshButton(CoordinatorEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Request an immediate cloud refresh for all devices."""
+        await self.coordinator.async_request_refresh()
+
+
+class AtombergDeviceRefreshButton(AtombergEntity, ButtonEntity):
+    """Button to refresh device state from the cloud on the device page."""
+
+    def __init__(
+        self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
+    ) -> None:
+        """Initialize the button entity."""
+        super().__init__(coordinator, device, _LOGGER)
+
+        self._attr_unique_id = self._get_unique_id(Platform.BUTTON, "refresh_now")
+        self._attr_name = self._device.name + " refresh"
+        self._attr_icon = "mdi:refresh"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    async def async_press(self) -> None:
+        """Request an immediate cloud refresh."""
         await self.coordinator.async_request_refresh()
 
 

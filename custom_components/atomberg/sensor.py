@@ -13,7 +13,6 @@ from .device import (
     ATTR_TIMER_HOURS,
     ATTR_TIMER_TIME_ELAPSED_MINS,
     DEVICE_TYPE_FAN,
-    DEVICE_TYPE_FAN,
     DEVICE_TYPE_LOCK,
     DEVICE_TYPE_WATER_PURIFIER,
     AtombergDevice,
@@ -400,6 +399,7 @@ class LockBatterySensor(LockBaseSensor):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(Platform.SENSOR, suffix="battery")
         self._attr_name = self._device.name + " battery"
@@ -415,6 +415,7 @@ class LockUnlockCountSensor(LockBaseSensor):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(
             Platform.SENSOR, suffix="unlock_count"
@@ -432,6 +433,7 @@ class LockFirmwareSensor(LockBaseSensor):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(
             Platform.SENSOR, suffix="firmware"
@@ -449,6 +451,7 @@ class LockGuestPinSensor(LockBaseSensor):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(
             Platform.SENSOR, suffix="last_guest_pin"
@@ -466,6 +469,7 @@ class LockGuestPinValidStartSensor(LockBaseSensor):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(
             Platform.SENSOR, suffix="last_guest_pin_valid_start"
@@ -483,6 +487,7 @@ class LockGuestPinValidEndSensor(LockBaseSensor):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(
             Platform.SENSOR, suffix="last_guest_pin_valid_end"
@@ -498,6 +503,7 @@ class LockSettingsSensor(AtombergEntity, SensorEntity):
     def __init__(
         self, coordinator: AtombergDataUpdateCoordinator, device: AtombergDevice
     ) -> None:
+        """Initialize the entity."""
         super().__init__(coordinator, device, _LOGGER)
         self._attr_unique_id = self._get_unique_id(
             Platform.SENSOR, suffix="settings"

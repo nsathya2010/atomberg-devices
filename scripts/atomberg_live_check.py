@@ -9,7 +9,6 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 ENV_PATH = SCRIPT_DIR / "atomberg.env"
 
@@ -44,9 +43,8 @@ def request_json(url: str, headers: dict[str, str]) -> dict[str, Any]:
 def main() -> int:
     """Exercise the main Atomberg cloud read endpoints."""
     if not ENV_PATH.exists():
-        print(
-            "Missing scripts/atomberg.env. Copy scripts/atomberg.env.example and fill in your real values.",
-            file=sys.stderr,
+        sys.stderr.write(
+            "Missing scripts/atomberg.env. Copy scripts/atomberg.env.example and fill in your real values.\n"
         )
         return 1
 
@@ -59,9 +57,8 @@ def main() -> int:
     ]
     missing = [key for key in required_keys if not env.get(key)]
     if missing:
-        print(
-            f"Missing values in scripts/atomberg.env: {', '.join(missing)}",
-            file=sys.stderr,
+        sys.stderr.write(
+            f"Missing values in scripts/atomberg.env: {', '.join(missing)}\n"
         )
         return 1
 
@@ -95,7 +92,7 @@ def main() -> int:
         ),
     }
 
-    print(json.dumps(responses, indent=2))
+    sys.stdout.write(f"{json.dumps(responses, indent=2)}\n")
     return 0
 
 

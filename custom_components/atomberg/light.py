@@ -18,7 +18,6 @@ from homeassistant.util.color import scale_to_ranged_value, value_to_brightness
 
 from .coordinator import AtombergDataUpdateCoordinator
 from .device import (
-    ATTR_BRIGHTNESS,
     ATTR_LED,
     ATTR_LIGHT_MODE,
     DEVICE_TYPE_FAN,

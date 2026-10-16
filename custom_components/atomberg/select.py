@@ -10,12 +10,12 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import AtombergDataUpdateCoordinator
 from .device import (
-    ATTR_TIMER_HOURS,
     ATTR_POWER,
     ATTR_SPEED,
-    TIMER_MAPPING,
+    ATTR_TIMER_HOURS,
     DEVICE_TYPE_FAN,
     DEVICE_TYPE_WATER_PURIFIER,
+    TIMER_MAPPING,
     AtombergDevice,
 )
 from .entity import AtombergEntity, platform_async_setup_entry
